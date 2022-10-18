@@ -1,3 +1,4 @@
+from typing import Dict, Any
 import json
 import logging
 import os
@@ -36,10 +37,10 @@ class BuildXML:
             aws_access_key_id=os.getenv("ACCESS_KEY"),
             aws_secret_access_key=os.getenv("SECRET_KEY")
         )
-        self.date_time = date_time
+        self.date_time: str = date_time
 
-    def get_data(self):
-        data = {
+    def get_data(self) -> Dict[str, Any]:
+        return {
             "Email": self.email,
             "Confirm": "False",
             "Detail": "False",
@@ -51,21 +52,20 @@ class BuildXML:
             "HtmlMessage": "False",
             "DisableMessageOptions": "OFF",
         }
-        return data
 
-    def handler(self):
+    def handler(self) -> Dict[str, Any]:
         self.write_file(data=self.get_data())
         self.send_file()
         return {
             "sending": "ok"
         }
 
-    def write_file(self, data):
+    def write_file(self, data: Dict[str, Any]) -> None:
         xml_data = dict2xml(data, wrap="ArchivoXML", indent="    ")
         with open(f"IN_{self.date_time}.xml", "w") as f:
             f.write(xml_data)
 
-    def send_file(self):
+    def send_file(self) -> None:
         self.s3_client.upload_file(
             f"IN_{self.date_time}.xml",
             os.getenv("BUCKET"),

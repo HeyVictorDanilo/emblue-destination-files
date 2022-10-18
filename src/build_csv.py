@@ -4,6 +4,7 @@ import os
 
 from dotenv import load_dotenv
 import awswrangler as wr
+import pandas as pd
 
 load_dotenv()
 
@@ -13,10 +14,10 @@ logger.setLevel(logging.INFO)
 
 class BuildCsv:
     def __init__(self, date_time: str):
-        self.date_time = date_time
+        self.date_time: str = date_time
 
     @staticmethod
-    def get_dataframe():
+    def get_dataframe() -> pd.DataFrame:
         conn = wr.postgresql.connect(
             secret_id=str(os.getenv("SECRET_ARN"))
         )
@@ -27,7 +28,7 @@ class BuildCsv:
         return df
 
     @staticmethod
-    def update_data(dataframe):
+    def update_data(dataframe: pd.DataFrame) -> pd.DataFrame:
         dataframe['FECHA_ENVIO'] = ''
         dataframe['FECHA_ACTIVIDAD'] = ''
         dataframe['CAMPANIA'] = ''
@@ -38,13 +39,16 @@ class BuildCsv:
         dataframe['TAG'] = ''
         return dataframe
 
-    def send_file(self, data_frame):
-        wr.s3.to_csv(data_frame, f"s3://{os.getenv('BUCKET')}/IN_{self.date_time}.csv", index=False)
+    def send_file(self, data_frame: pd.DataFrame) -> None:
+        wr.s3.to_csv(
+            data_frame,
+            f"s3://{os.getenv('BUCKET')}/IN_{self.date_time}.csv",
+            index=False
+        )
 
-    def handler(self):
+    def handler(self) -> None:
         self.send_file(data_frame=self.update_data(dataframe=self.get_dataframe()))
 
 
 if __name__ == '__main__':
     build_csv = BuildCsv(date_time='202210181619')
-    print(build_csv.handler())
