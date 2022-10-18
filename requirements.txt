@@ -14,3 +14,6 @@ s3transfer
 six
 tomli
 urllib3
+awswrangler
+pandas
+pg8000
