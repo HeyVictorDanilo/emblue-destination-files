@@ -1,3 +1,4 @@
+from typing import List, Any, Dict
 import os
 import logging
 
@@ -13,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 
 class UploadFilesSFTP:
-    def __init__(self):
+    def __init__(self) -> None:
         self.s3_client = boto3.client(
             service_name="s3",
             region_name=os.getenv("REGION"),
@@ -21,16 +22,16 @@ class UploadFilesSFTP:
             aws_secret_access_key=os.getenv("SECRET_KEY")
         )
 
-    def get_files(self):
+    def get_files(self) -> List[str]:
         return [
             content["Key"]
             for content in self.s3_client.list_objects(Bucket = 'xml-file-uploading')["Contents"]
         ]
 
-    def handler(self):
+    def handler(self) -> None:
         self.send_files(files=self.get_files())
 
-    def send_files(self, files):
+    def send_files(self, files: List[str]) -> Dict[str, Any]:
         for file in files:
             try:
                 transport = paramiko.Transport(os.getenv("SFTP_HOSTNAME"), 22)
