@@ -16,4 +16,4 @@ tomli
 urllib3
 awswrangler
 pandas
-pg8000
+paramiko

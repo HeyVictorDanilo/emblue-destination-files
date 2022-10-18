@@ -52,3 +52,4 @@ class BuildCsv:
 
 if __name__ == '__main__':
     build_csv = BuildCsv(date_time='202210181619')
+    build_csv.handler()
