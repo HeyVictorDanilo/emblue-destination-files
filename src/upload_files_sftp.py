@@ -1,9 +1,12 @@
 import os
 import logging
 
+from paramiko.ssh_exception import SSHException
+from dotenv import load_dotenv
 import paramiko
 import boto3
-from paramiko.ssh_exception import SSHException
+
+load_dotenv()
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -25,22 +28,24 @@ class UploadFilesSFTP:
         ]
 
     def handler(self):
-        print(self.get_files())
-        #self.send_files(files=self.get_files())
+        self.send_files(files=self.get_files())
 
     def send_files(self, files):
-        try:
-            transport = paramiko.Transport(os.environ['HOSTNAME'], 22)
-            transport.connect(username=os.environ['username'], password=os.environ['password'])
-        except SSHException as error:
-            logging.error(error)
-        else:
-            with paramiko.SFTPClient.from_transport(transport) as sftp:
-                with sftp.open('/upload/testing.csv', 'wb', 32768) as f:
-                    self.s3_client.download_fileobj(os.getenv("BUCKET"), event["file_name"], f)
+        for file in files:
+            try:
+                transport = paramiko.Transport(os.getenv("SFTP_HOSTNAME"), 22)
+                transport.connect(username=os.getenv('SFTP_USER_NAME'), password=os.getenv('SFTP_PASSWORD'))
+            except SSHException as error:
+                logging.error(error)
+            else:
+                with paramiko.SFTPClient.from_transport(transport) as sftp:
+                    with sftp.open(f'/upload/{file}', 'wb', 32768) as f:
+                        self.s3_client.download_fileobj(os.getenv("BUCKET"), file, f)
 
         message = 'Hello from Lambda3!'
         return {'body': message}
 
+
 if __name__ == '__main__':
-    uploadin = UploadFilesSFTP().handler()
+    uploading = UploadFilesSFTP()
+    uploading.handler()
