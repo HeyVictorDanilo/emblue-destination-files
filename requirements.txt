@@ -1,0 +1,16 @@
+black
+boto3
+botocore
+click
+colorama
+dict2xml
+jmespath
+mypy-extensions
+pathspec
+platformdirs
+python-dateutil
+python-dotenv
+s3transfer
+six
+tomli
+urllib3
