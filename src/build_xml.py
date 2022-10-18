@@ -1,4 +1,3 @@
-from datetime import datetime
 import json
 import logging
 import os
@@ -20,14 +19,15 @@ def handler(event, context):
             "status_code": 200,
             "response": BuildXML(
                 group_name="Testing group name",
-                email=os.getenv('EMAIL_NOTIFICATION')
+                email=os.getenv('EMAIL_NOTIFICATION'),
+                date_time='202210181619'
             ).handler()
         }
     )
 
 
 class BuildXML:
-    def __init__(self, email: str, group_name: str):
+    def __init__(self, email: str, group_name: str, date_time: str):
         self.email: str = email
         self.group_name: str = group_name
         self.s3_client = boto3.client(
@@ -36,7 +36,7 @@ class BuildXML:
             aws_access_key_id=os.getenv("ACCESS_KEY"),
             aws_secret_access_key=os.getenv("SECRET_KEY")
         )
-        self.now = datetime.now()
+        self.date_time = date_time
 
     def get_data(self):
         data = {
@@ -62,12 +62,16 @@ class BuildXML:
 
     def write_file(self, data):
         xml_data = dict2xml(data, wrap="ArchivoXML", indent="    ")
-        with open(f"IN_{self.now.strftime('%Y%m%d%H%M')}.xml", "w") as f:
+        with open(f"IN_{self.date_time}.xml", "w") as f:
             f.write(xml_data)
 
     def send_file(self):
         self.s3_client.upload_file(
-            f"IN_{self.now.strftime('%Y%m%d%H%M')}.xml",
+            f"IN_{self.date_time}.xml",
             os.getenv("BUCKET"),
-            f"IN_{self.now.strftime('%Y%m%d%H%M')}.xml"
+            f"IN_{self.date_time}.xml"
         )
+
+
+if __name__ == '__main__':
+    handler(event={}, context={})
