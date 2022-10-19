@@ -25,7 +25,7 @@ class UploadFilesSFTP:
     def get_files(self) -> List[str]:
         return [
             content["Key"]
-            for content in self.s3_client.list_objects(Bucket = 'xml-file-uploading')["Contents"]
+            for content in self.s3_client.list_objects(Bucket = os.getenv("BUCKET"))["Contents"]
         ]
 
     def handler(self) -> None:
