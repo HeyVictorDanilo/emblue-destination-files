@@ -4,6 +4,7 @@ import logging
 import os
 
 import boto3
+from botocore.exceptions import ClientError
 from dict2xml import dict2xml
 from dotenv import load_dotenv
 
@@ -62,15 +63,27 @@ class BuildXML:
 
     def write_file(self, data: Dict[str, Any]) -> None:
         xml_data = dict2xml(data, wrap="ArchivoXML", indent="    ")
-        with open(f"IN_{self.date_time}.xml", "w") as f:
-            f.write(xml_data)
+        try:
+            with open(f"IN_{self.date_time}.xml", "w") as f:
+                f.write(xml_data)
+        except FileNotFoundError:
+            logger.error(f'File not found: {FileNotFoundError}')
+        except OSError:
+            logger.error(f'Operating system error: {OSError}')
+        except Exception as error:
+            logger.error(f'Exception opening file: {error}')
 
     def send_file(self) -> None:
-        self.s3_client.upload_file(
-            f"IN_{self.date_time}.xml",
-            os.getenv("BUCKET"),
-            f"IN_{self.date_time}.xml"
-        )
+        try:
+            self.s3_client.upload_file(
+                f"IN_{self.date_time}.xml",
+                os.getenv("BUCKET"),
+                f"IN_{self.date_time}.xml"
+            )
+        except ClientError as error:
+            logger.error(error)
+        else:
+            pass
 
 
 if __name__ == '__main__':
