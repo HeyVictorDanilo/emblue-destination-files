@@ -17,3 +17,4 @@ urllib3
 awswrangler
 pandas
 paramiko
+pytest
