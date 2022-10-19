@@ -12,7 +12,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class BuildCsv:
+class BuildCSV:
     def __init__(self, date_time: str):
         self.date_time: str = date_time
 
@@ -51,5 +51,5 @@ class BuildCsv:
 
 
 if __name__ == '__main__':
-    build_csv = BuildCsv(date_time='202210181619')
+    build_csv = BuildCSV(date_time='202210181619')
     build_csv.handler()
